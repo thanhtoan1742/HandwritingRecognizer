@@ -10,14 +10,14 @@ using namespace std;
 
 ifstream inputFile("train-images.idx3-ubyte", ifstream::binary);
 
-char readChar()
+char ReadChar()
 {
 	char c;
 	inputFile.read(&c, sizeof(char));
 	return c;
 }
 
-int readInt()
+int ReadInt()
 {
 	int i;
 	char c[sizeof(int)];
@@ -27,22 +27,22 @@ int readInt()
 	return i;
 }
 
-int main()
+void ConvertAllFile()
 {
-	int luckyNumber = readInt();
-	int nImage = readInt();
-	int nRow = readInt();
-	int nCol = readInt();
+	int luckyNumber = ReadInt();
+	int nImage = ReadInt();
+	int nRow = ReadInt();
+	int nCol = ReadInt();
 
 	freopen("convertedImage.txt", "w", stdout);
 
-	for (int x = 0; x < 1; x++)
+	for (int x = 0; x < nImage; x++)
 	{
 		for (int i = 0; i < nRow; i++)
 		{
 			for (int j = 0; j < nCol; j++)
 			{
-				char pixelData = readChar();
+				char pixelData = ReadChar();
 				printf("%d ", pixelData );
 			}
 			printf("\n");
