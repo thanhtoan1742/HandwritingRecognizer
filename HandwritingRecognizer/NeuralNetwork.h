@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+
 #include "Axon.h"
 #include "Neuron.h"
 
@@ -20,5 +22,7 @@ public:
 	~NeuralNetwork();
 
 	void Run();
+	void ImportNetwork();
+	void ExportNetwork();
 };
 
