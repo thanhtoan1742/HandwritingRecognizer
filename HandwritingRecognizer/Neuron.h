@@ -10,6 +10,8 @@ class Neuron
 public:
 	std::vector<Axon*> inputAxons, outputAxons;
 	float bias;
+	float activation;
+	float disiredActivation;
 
 	Neuron();
 	~Neuron();

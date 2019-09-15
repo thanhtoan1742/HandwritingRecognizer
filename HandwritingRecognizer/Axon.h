@@ -10,6 +10,7 @@ class Axon
 public:
 	Neuron *source, *target;
 	float weight;
+	float change;
 
 	Axon();
 	Axon(Neuron*, Neuron*, float);

@@ -128,8 +128,9 @@
     <ClInclude Include="Neuron.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="train-images.idx3-ubyte" />
-    <None Include="train-labels.idx1-ubyte" />
+    <Text Include="NeuralNetwork.txt" />
+    <Text Include="TrainImages" />
+    <Text Include="TrainLabels" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

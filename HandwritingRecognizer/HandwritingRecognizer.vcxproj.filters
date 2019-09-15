@@ -49,11 +49,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="train-images.idx3-ubyte">
+    <Text Include="NeuralNetwork.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="TrainImages">
       <Filter>Tests</Filter>
-    </None>
-    <None Include="train-labels.idx1-ubyte">
+    </Text>
+    <Text Include="TrainLabels">
       <Filter>Tests</Filter>
-    </None>
+    </Text>
   </ItemGroup>
 </Project>

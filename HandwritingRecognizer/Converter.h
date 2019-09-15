@@ -10,18 +10,23 @@
 class Converter
 {
 private:
-	static std::ifstream inputFile;
+	static std::ifstream imagesFile;
+	static std::ifstream labelsFile;
+
 public:
-	static const int N_IMAGE = 60000;
+	static const int N_IMAGE = 28;// 60000;
 	static const int N_ROW = 28;
 	static const int N_COL = 28;
+
 	static char data[N_IMAGE][N_ROW][N_COL];
+	static char labels[N_IMAGE];
 
 private:
-	static char ReadChar();
-	static int ReadInt();
+	static char ReadChar(std::ifstream&);
+	static int ReadInt(std::ifstream&);
 public:
 	Converter();
 	~Converter();
+
 	static void ConvertFile();
 };
