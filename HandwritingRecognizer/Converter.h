@@ -15,6 +15,8 @@ class Converter
 private:
 	static std::ifstream imagesFile;
 	static std::ifstream labelsFile;
+	static std::ifstream importFile;
+	static std::ofstream exportFile;
 
 public:
 	static const int N_IMAGE = 60000; //60000
@@ -34,6 +36,8 @@ public:
 	~Converter();
 
 	static void ConvertFile();
+	static void ImportConvertedFile();
+	static void ExportConvertedFile();
 	static float Sigmoid(const float&);
 	static float DerivativeOfSigmoid(float);
 };

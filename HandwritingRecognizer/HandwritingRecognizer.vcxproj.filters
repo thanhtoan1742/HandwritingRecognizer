@@ -59,4 +59,9 @@
       <Filter>Tests</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
