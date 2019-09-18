@@ -15,8 +15,8 @@ public:
 	static const int NUMBER_OF_LAYERS = 2;
 
 private:
-	std::vector<Neuron> input, output;
-	std::vector< std::vector<Neuron> > layers;
+	Neuron input[INPUT_SIZE], output[OUTPUT_SIZE];
+	Neuron layers[NUMBER_OF_LAYERS][LAYER_SIZE];
 
 public:
 	float result[OUTPUT_SIZE];
@@ -27,8 +27,13 @@ public:
 	void ImportNetwork();
 	void ExportNetwork();
 
-	void Recognize(char[][INPUT_IMAGE_LENGTH]);
-	void Train(char);
+	void GetData(char[][INPUT_IMAGE_LENGTH], char);
+	void Recognize();
+	void Train(float);
+
+	// to be called after having ran all tests or a mini-batch.
+	void Update();
+	int GetResult();
 	float Cost();
 };
 

@@ -4,7 +4,6 @@ std::ifstream Converter::imagesFile("TrainImages", std::ifstream::binary);
 std::ifstream Converter::labelsFile("TrainLabels", std::ifstream::binary);
 char Converter::data[Converter::N_IMAGE][Converter::N_ROW][Converter::N_ROW];
 char Converter::labels[N_IMAGE];
-int currentTest = 0;
 
 Converter::Converter()
 {
@@ -48,4 +47,18 @@ void Converter::ConvertFile()
 
 		labels[x] = ReadChar(labelsFile);
 	}
+}
+
+float Converter::Sigmoid(const float &x)
+{
+	if (x > 10) return 1;
+	if (x < -10) return 0;
+	return 1 / (1 + exp(-x));
+}
+
+float Converter::DerivativeOfSigmoid(float x)
+{
+	if (abs(x) > 10) return 0;
+	x = exp(-x);
+	return x / pow(1 + x, 2);
 }

@@ -1,67 +1,50 @@
 #include "NeuralNetwork.h"
 
-inline float sigmoid(const float &x)
-{
-	return 1 / (1 - exp(-x));
-}
-
-float derivativeOfSigmoid(float x)
-{
-	x = exp(x);
-	return x / pow(1 + x, 2);
-}
-
 NeuralNetwork::NeuralNetwork()
 {
-	input.resize(INPUT_SIZE);
-
-	for (int i = 0; i < NUMBER_OF_LAYERS; i++)
+	for (int i = 0; i < INPUT_SIZE; i++)
+	for (int j = 0; j < LAYER_SIZE; j++)
 	{
-		layers.emplace_back(LAYER_SIZE);
-		if (i == 0)
-			for (int j = 0; j < INPUT_SIZE; j++)
-			for (int k = 0; k < LAYER_SIZE; k++)
-			{
-				// TODO: edit the initial weight to be random.
-				Axon *axon = new Axon(&input[j], &layers[i][k]);
-				input[j].outputAxons.push_back(axon);
-				layers[i][k].inputAxons.push_back(axon);
-			}
-		else
-			for (int j = 0; j < LAYER_SIZE; j++)
-			for (int k = 0; k < LAYER_SIZE; k++)
-			{
-				// TODO: edit the initial weight to be random.
-				Axon *axon = new Axon(&layers[i - 1][j], &layers[i][k]);
-				layers[i - 1][j].outputAxons.push_back(axon);
-				layers[i][k].inputAxons.push_back(axon);
-			}
+		Axon *axon = new Axon(&input[i], &layers[0][j]);
+		input[i].outputAxons.push_back(axon);
+		layers[0][j].inputAxons.push_back(axon);
 	}
 
-	output.resize(OUTPUT_SIZE);
+	for (int x = 1; x < NUMBER_OF_LAYERS; x++)
+		for (int i = 0; i < LAYER_SIZE; i++)
+		for (int j = 0; j < LAYER_SIZE; j++)
+		{
+			Axon *axon = new Axon(&layers[x - 1][i], &layers[x][j]);
+			layers[x - 1][i].outputAxons.push_back(axon);
+			layers[x][j].inputAxons.push_back(axon);
+		}
+
+	for (int i = 0; i < LAYER_SIZE; i++)
+	for (int j = 0; j < OUTPUT_SIZE; j++)
+	{
+		Axon *axon = new Axon(&layers[NUMBER_OF_LAYERS - 1][i], &output[j]);
+		layers[NUMBER_OF_LAYERS - 1][i].outputAxons.push_back(axon);
+		output[j].inputAxons.push_back(axon);
+	}
 }
 
 
 NeuralNetwork::~NeuralNetwork()
 {
+	for (int i = 0; i < INPUT_SIZE; i++)
+		while (!input[i].outputAxons.empty())
+		{
+			delete input[i].outputAxons.back();
+			input[i].outputAxons.pop_back();
+		}
+
 	for (int i = 0; i < NUMBER_OF_LAYERS; i++)
 	for (int j = 0; j < LAYER_SIZE; j++)
-	{
-		while (!layers[i][j].inputAxons.empty())
+		while (!layers[i][j].outputAxons.empty())
 		{
-			delete layers[i][j].inputAxons.back();
-			layers[i][j].inputAxons.pop_back();
+			delete layers[i][j].outputAxons.back();
+			layers[i][j].outputAxons.pop_back();
 		}
-	}
-
-	for (int i = 0; i < OUTPUT_SIZE; i++)
-	{
-		while (!output[i].inputAxons.empty())
-		{
-			delete output[i].inputAxons.back();
-			output[i].inputAxons.pop_back();
-		}
-	}
 }
 
 void NeuralNetwork::ImportNetwork()
@@ -138,39 +121,76 @@ void NeuralNetwork::ExportNetwork()
 				fo << layers[x][i].outputAxons[j]->weight << ' ';
 			fo << '\n';
 		}
-		fo << '\n';
 	}
 }
 
-void NeuralNetwork::Recognize(char data[][INPUT_IMAGE_LENGTH])
+void NeuralNetwork::GetData(char data[][INPUT_IMAGE_LENGTH], char answer)
 {
+	// Get data for recognizing and training. If no training needed, provide answer with 
+	// any character and do not call the Train(float) method.
 	for (int i = 0; i < INPUT_IMAGE_LENGTH; i++)
 	for (int j = 0; j < INPUT_IMAGE_LENGTH; j++)
 		input[i * INPUT_IMAGE_LENGTH + j].activation = data[i][j];
 
-	for (int x = 0; x < NUMBER_OF_LAYERS; x++)
-		for (int i = 0; i < LAYER_SIZE; i++)
-		{
-			layers[x][i].activation = layers[x][i].bias;
-			for (int j = 0; j < layers[x][i].inputAxons.size(); j++)
-				layers[x][i].activation += layers[x][i].inputAxons[j]->source->activation * layers[x][i].inputAxons[j]->weight;
-			layers[x][i].activation = sigmoid(layers[x][i].activation);
-		}
-
-	for (int i = 0; i < OUTPUT_SIZE; i++)
-	{
-		output[i].activation = output[i].bias;
-		for (int j = 0; j < output[i].inputAxons.size(); j++)
-			output[i].activation += output[i].inputAxons[j]->source->activation * output[i].inputAxons[j]->weight;
-
-		result[i] = output[i].activation;
-		output[i].activation = sigmoid(output[i].activation);
-	}
-}
-
-void NeuralNetwork::Train(char answer)
-{
 	for (int i = 0; i < OUTPUT_SIZE; i++)
 		output[i].disiredActivation = 0;
 	output[int(answer)].disiredActivation = 1;
+}
+
+void NeuralNetwork::Recognize()
+{
+	for (int x = 0; x < NUMBER_OF_LAYERS; x++)
+		for (int i = 0; i < LAYER_SIZE; i++)
+			layers[x][i].Activate();
+
+	for (int i = 0; i < OUTPUT_SIZE; i++)
+	{
+		output[i].Activate();
+		result[i] = output[i].activation;
+	}
+}
+
+void NeuralNetwork::Train(float eta)
+{
+	for (int x = NUMBER_OF_LAYERS - 1; x >= 0; x--)
+		for (int i = 0; i < LAYER_SIZE; i++)
+			layers[x][i].Train(eta);
+
+	for (int i = 0; i < INPUT_SIZE; i++)
+		input[i].Train(eta);
+}
+
+void NeuralNetwork::Update()
+{
+	for (int i = 0; i < INPUT_SIZE; i++)
+	{
+		input[i].Update();
+		for (int j = 0; j < input[i].outputAxons.size(); j++)
+			input[i].outputAxons[j]->Update();
+	}
+
+	for (int x = 0; x < NUMBER_OF_LAYERS; x++)
+		for (int i = 0; i < LAYER_SIZE; i++)
+		{
+			layers[x][i].Update();
+			for (int j = 0; j < layers[x][i].outputAxons.size(); j++)
+				layers[x][i].outputAxons[j]->Update();
+		}
+}
+
+float NeuralNetwork::Cost()
+{
+	float cost = 0;
+	for (int i = 0; i < OUTPUT_SIZE; i++)
+		cost += pow(output[i].activation - output[i].disiredActivation, 2);
+	return cost;
+}
+
+int NeuralNetwork::GetResult()
+{
+	int res = 0;
+	for (int i = 0; i < OUTPUT_SIZE; i++)
+		if (output[i].activation > output[res].activation)
+			res = i;
+	return res;
 }
